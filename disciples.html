@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Disciples — A Community of Faith</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Karla:wght@400;500;700&display=swap');
+
+  :root{
+    --night: #12172b;
+    --night-deep: #0b0e1c;
+    --parchment: #f6efe2;
+    --gold: #d4a94a;
+    --gold-bright: #efc766;
+    --ember: #b5583a;
+    --stainedblue: #4a6fa5;
+    --stainedgreen: #4a7a5f;
+    --line: rgba(212,169,74,0.25);
+    --radius: 2px;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--night);
+    color:var(--parchment);
+    font-family:'Karla', sans-serif;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.display{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    letter-spacing:0.01em;
+  }
+  .verse{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+  }
+  a{color:var(--gold-bright); text-decoration:none;}
+  img{max-width:100%; display:block;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+
+  /* ---------- texture ---------- */
+  .sky{
+    position:fixed; inset:0; z-index:-2;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(212,169,74,0.06), transparent 40%),
+      radial-gradient(ellipse at 80% 60%, rgba(74,111,165,0.08), transparent 45%),
+      linear-gradient(180deg, var(--night-deep), var(--night) 40%, var(--night-deep));
+  }
+  .stars{
+    position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background-image:
+      radial-gradient(1px 1px at 10% 20%, rgba(246,239,226,0.5), transparent),
+      radial-gradient(1px 1px at 30% 70%, rgba(246,239,226,0.4), transparent),
+      radial-gradient(1px 1px at 60% 15%, rgba(246,239,226,0.5), transparent),
+      radial-gradient(1px 1px at 80% 40%, rgba(246,239,226,0.3), transparent),
+      radial-gradient(1px 1px at 45% 85%, rgba(246,239,226,0.4), transparent),
+      radial-gradient(1px 1px at 90% 80%, rgba(246,239,226,0.3), transparent);
+    background-size: 100% 100%;
+    opacity:0.7;
+  }
+
+  /* ---------- nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1.1rem 2rem;
+    background:rgba(11,14,28,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex; align-items:center; gap:0.6rem; font-family:'Fraunces',serif; font-size:1.25rem; letter-spacing:0.04em;}
+  .brand span:last-child{
+    background:linear-gradient(90deg, var(--parchment), var(--gold-bright), var(--parchment));
+    background-size:220% 100%;
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    text-shadow:0 0 18px rgba(212,169,74,0.35);
+    animation:titleGlow 5s ease-in-out infinite;
+  }
+  @keyframes titleGlow{
+    0%,100%{ background-position:0% 0; }
+    50%{ background-position:100% 0; }
+  }
+  .brand .mark{
+    width:22px; height:22px; position:relative; flex-shrink:0;
+  }
+  .brand .mark::before, .brand .mark::after{
+    content:''; position:absolute; background:var(--gold);
+  }
+  .brand .mark::before{ left:50%; top:0; width:2px; height:100%; transform:translateX(-50%); }
+  .brand .mark::after{ top:32%; left:0; width:100%; height:2px; }
+
+  .navlinks{display:flex; gap:2rem; font-size:0.92rem; letter-spacing:0.03em;}
+  .navlinks a{color:var(--parchment); opacity:0.8; transition:opacity 0.2s, color 0.2s;}
+  .navlinks a:hover{opacity:1; color:var(--gold-bright);}
+  .navtoggle{display:none; background:none; border:none; color:var(--parchment); font-size:1.5rem; cursor:pointer;}
+
+  @media (max-width:820px){
+    .navlinks{
+      position:fixed; top:64px; right:0; left:0;
+      background:var(--night-deep);
+      flex-direction:column; gap:0; max-height:0; overflow:hidden;
+      transition:max-height 0.3s ease;
+      border-bottom:1px solid var(--line);
+    }
+    .navlinks.open{max-height:300px;}
+    .navlinks a{padding:1rem 2rem; border-top:1px solid var(--line);}
+    .navtoggle{display:block;}
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    min-height:92vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    padding:6rem 1.5rem 4rem;
+    position:relative;
+  }
+  .hero .eyebrow{
+    color:var(--gold);
+    letter-spacing:0.25em;
+    text-transform:uppercase;
+    font-size:0.75rem;
+    margin-bottom:1.5rem;
+    opacity:0;
+    animation:fadeUp 1s ease forwards 0.1s;
+  }
+  .hero h1{
+    font-size:clamp(2.6rem, 7vw, 5.2rem);
+    max-width:16ch;
+    line-height:1.05;
+    opacity:0;
+    animation:fadeUp 1.1s ease forwards 0.3s;
+  }
+  .hero h1 em{
+    font-style:italic;
+    color:var(--gold-bright);
+  }
+  .hero p{
+    margin-top:1.6rem;
+    max-width:46ch;
+    font-size:1.15rem;
+    color:rgba(246,239,226,0.75);
+    opacity:0;
+    animation:fadeUp 1.1s ease forwards 0.55s;
+  }
+  .hero .ctas{
+    margin-top:2.4rem;
+    display:flex; gap:1rem; flex-wrap:wrap; justify-content:center;
+    opacity:0;
+    animation:fadeUp 1.1s ease forwards 0.8s;
+  }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:translateY(0);} }
+
+  .btn{
+    display:inline-block;
+    padding:0.85rem 1.8rem;
+    border-radius:var(--radius);
+    font-size:0.95rem;
+    letter-spacing:0.02em;
+    cursor:pointer;
+    border:1px solid var(--gold);
+    transition:all 0.25s ease;
+  }
+  .btn-solid{ background:var(--gold); color:var(--night-deep); font-weight:700; }
+  .btn-solid:hover{ background:var(--gold-bright); transform:translateY(-2px); }
+  .btn-ghost{ background:transparent; color:var(--parchment); }
+  .btn-ghost:hover{ border-color:var(--parchment); background:rgba(246,239,226,0.06); }
+
+  /* divider */
+  .divider{
+    display:flex; align-items:center; gap:1rem;
+    max-width:220px; margin:0 auto;
+    color:var(--gold);
+  }
+  .divider::before, .divider::after{
+    content:''; flex:1; height:1px; background:var(--line);
+  }
+
+  section{ padding:7.5rem 1.5rem; max-width:1080px; margin:0 auto; }
+  .section-head{ text-align:center; margin-bottom:4rem; }
+  .section-head .eyebrow{ color:var(--gold); letter-spacing:0.2em; text-transform:uppercase; font-size:0.72rem; }
+  .section-head h2{ font-size:clamp(1.8rem, 4vw, 2.6rem); margin-top:0.6rem; }
+  .section-head p{ color:rgba(246,239,226,0.65); max-width:52ch; margin:1rem auto 0; }
+
+  /* ---------- origins timeline ---------- */
+  .origins{
+    display:grid; grid-template-columns:1fr; gap:0;
+    border-left:1px solid var(--line);
+    margin-left:1rem;
+  }
+  .origin-item{
+    position:relative;
+    padding:1.6rem 0 1.6rem 2.4rem;
+  }
+  .origin-item::before{
+    content:'';
+    position:absolute; left:-6px; top:2rem;
+    width:11px; height:11px; border-radius:50%;
+    background:var(--night); border:2px solid var(--gold);
+  }
+  .origin-item .era{ font-family:'Fraunces',serif; color:var(--gold-bright); font-size:1.1rem; margin-bottom:0.3rem; }
+  .origin-item p{ color:rgba(246,239,226,0.75); max-width:62ch; }
+
+  /* ---------- pillars ---------- */
+  .pillars{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr));
+    gap:1.5rem; margin-top:2rem;
+  }
+  .pillar{
+    padding:2rem 1.6rem;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:linear-gradient(180deg, rgba(212,169,74,0.04), transparent);
+    transition:transform 0.25s ease, border-color 0.25s ease;
+  }
+  .pillar:hover{ transform:translateY(-4px); border-color:var(--gold); }
+  .pillar .glyph{ font-size:1.6rem; color:var(--gold-bright); margin-bottom:0.9rem; }
+  .pillar h3{ font-size:1.15rem; margin-bottom:0.5rem; }
+  .pillar p{ font-size:0.92rem; color:rgba(246,239,226,0.65); }
+
+  /* ---------- candle wall (signature interactive element) ---------- */
+  .wall-intro{ text-align:center; margin-bottom:2.5rem; }
+
+  .composer{
+    max-width:760px; margin:0 auto 4.5rem;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:2.8rem 2.8rem 2.2rem;
+    background:rgba(246,239,226,0.03);
+  }
+  .composer h3{ font-size:1.2rem; margin-bottom:1.6rem; color:var(--gold-bright); }
+  .field-row{ display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.1rem; }
+  .field-row select, .field-row input{ flex:1; min-width:160px; }
+  input, textarea, select{
+    width:100%;
+    background:rgba(11,14,28,0.6);
+    border:1px solid var(--line);
+    color:var(--parchment);
+    padding:1rem 1.1rem;
+    border-radius:4px;
+    font-family:'Karla', sans-serif;
+    font-size:1rem;
+  }
+  textarea{ min-height:180px; resize:vertical; margin-bottom:1.3rem; line-height:1.7; }
+  input:focus, textarea:focus, select:focus, button:focus-visible, a:focus-visible{
+    outline:2px solid var(--gold-bright); outline-offset:2px;
+  }
+  .composer-foot{ display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; }
+  .char-hint{ font-size:0.8rem; color:rgba(246,239,226,0.45); }
+
+  .candle-grid{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr));
+    gap:2rem;
+  }
+  .candle-card{
+    position:relative;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:2.2rem 1.8rem 1.7rem;
+    background:radial-gradient(circle at 50% 0%, rgba(212,169,74,0.09), transparent 70%), rgba(11,14,28,0.5);
+    animation:cardIn 0.5s ease both;
+    transition:border-color 0.25s ease, transform 0.25s ease;
+  }
+  .candle-card:hover{
+    border-color:var(--gold);
+    transform:translateY(-3px);
+  }
+  @keyframes cardIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+  .candle-card .flame-wrap{
+    display:flex; justify-content:center; margin-bottom:0.8rem;
+  }
+  .flame{
+    width:8px; height:20px;
+    background:linear-gradient(180deg, var(--gold-bright), var(--ember));
+    border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+    filter:drop-shadow(0 0 6px rgba(239,199,102,0.8));
+    animation:flicker 2.4s ease-in-out infinite;
+    transform-origin:bottom center;
+  }
+  @keyframes flicker{
+    0%,100%{ transform:scaleY(1) rotate(0deg); }
+    25%{ transform:scaleY(1.05) rotate(-2deg); }
+    50%{ transform:scaleY(0.94) rotate(1deg); }
+    75%{ transform:scaleY(1.08) rotate(2deg); }
+  }
+  .candle-card .tag{
+    font-size:0.68rem; letter-spacing:0.15em; text-transform:uppercase;
+    color:var(--gold); text-align:center; margin-bottom:0.6rem;
+  }
+  .candle-card p.msg{
+    font-family:'Cormorant Garamond', serif; font-size:1.15rem; font-style:italic;
+    text-align:center; color:var(--parchment); margin-bottom:0.9rem;
+  }
+  .candle-card .meta{
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;
+    gap:0.7rem;
+    font-size:0.78rem; color:rgba(246,239,226,0.45);
+  }
+  .light-btn{
+    background:none; border:1px solid var(--line); color:var(--gold-bright);
+    padding:0.35rem 0.7rem; border-radius:var(--radius); cursor:pointer; font-size:0.75rem;
+    transition:border-color 0.2s, background 0.2s;
+  }
+  .light-btn:hover{ border-color:var(--gold); background:rgba(212,169,74,0.08); }
+  .empty-state{
+    text-align:center; padding:3rem 1rem; color:rgba(246,239,226,0.5);
+    border:1px dashed var(--line); border-radius:var(--radius);
+  }
+
+  /* ---------- testimonies ---------- */
+  .verse-block{
+    text-align:center;
+    padding:4rem 1.5rem;
+    background:linear-gradient(180deg, transparent, rgba(212,169,74,0.05), transparent);
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+  }
+  .verse-block p{
+    font-family:'Cormorant Garamond', serif;
+    font-size:clamp(1.4rem,3vw,2rem);
+    font-style:italic;
+    max-width:36ch; margin:0 auto;
+    color:var(--gold-bright);
+  }
+  .verse-block span{
+    display:block; margin-top:1.2rem; font-family:'Karla',sans-serif; font-style:normal;
+    font-size:0.85rem; letter-spacing:0.1em; color:rgba(246,239,226,0.6);
+  }
+
+  /* ---------- footer ---------- */
+  footer{
+    padding:3.5rem 1.5rem 2.5rem;
+    text-align:center;
+    border-top:1px solid var(--line);
+  }
+  footer .brand{ justify-content:center; margin-bottom:1rem; }
+  footer p{ color:rgba(246,239,226,0.45); font-size:0.85rem; max-width:44ch; margin:0 auto; }
+
+  .visually-hidden{
+    position:absolute; width:1px; height:1px; overflow:hidden;
+    clip:rect(0,0,0,0); white-space:nowrap;
+  }
+
+  /* ---------- disciple badge (signature effect) ---------- */
+  .disciple-badge{
+    position:relative;
+    display:inline-flex; align-items:center; gap:0.4rem;
+    font-family:'Fraunces', serif;
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    padding:0.3rem 0.7rem 0.3rem 0.5rem;
+    border-radius:999px;
+    border:1px solid var(--gold);
+    background:linear-gradient(90deg, rgba(212,169,74,0.15), rgba(212,169,74,0.03));
+    color:var(--gold-bright);
+    overflow:hidden;
+    isolation:isolate;
+  }
+  .disciple-badge::before{
+    content:'';
+    position:absolute; inset:0; z-index:-1;
+    background:linear-gradient(120deg, transparent 20%, rgba(239,199,102,0.55) 50%, transparent 80%);
+    background-size:220% 100%;
+    animation:shimmer 3.2s ease-in-out infinite;
+  }
+  @keyframes shimmer{
+    0%{ background-position:140% 0; }
+    100%{ background-position:-40% 0; }
+  }
+  .disciple-badge .flame-dot{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--gold-bright);
+    box-shadow:0 0 6px 2px rgba(239,199,102,0.9);
+    animation:pulseDot 1.8s ease-in-out infinite;
+  }
+  @keyframes pulseDot{
+    0%,100%{ opacity:0.6; transform:scale(0.85); }
+    50%{ opacity:1; transform:scale(1.15); }
+  }
+
+  /* ---------- glowing divider pulse ---------- */
+  .section-head .eyebrow{ position:relative; display:inline-block; }
+  .section-head .eyebrow::after{
+    content:'';
+    display:block;
+    width:40px; height:1px;
+    margin:0.7rem auto 0;
+    background:var(--gold);
+    box-shadow:0 0 8px 1px rgba(212,169,74,0.6);
+    animation:eyebrowGlow 2.6s ease-in-out infinite;
+  }
+  @keyframes eyebrowGlow{
+    0%,100%{ opacity:0.5; width:30px; }
+    50%{ opacity:1; width:52px; }
+  }
+
+  /* verse block glow */
+  .verse-block{
+    position:relative;
+  }
+  .verse-block::before{
+    content:'';
+    position:absolute; left:50%; top:0; transform:translateX(-50%);
+    width:1px; height:100%;
+    background:linear-gradient(180deg, transparent, var(--gold), transparent);
+    opacity:0.4;
+    animation:verseBeam 4s ease-in-out infinite;
+  }
+  @keyframes verseBeam{
+    0%,100%{ opacity:0.15; }
+    50%{ opacity:0.55; }
+  }
+
+  /* pillar glyph glow on hover */
+  .pillar .glyph{ transition:text-shadow 0.3s ease, transform 0.3s ease; }
+  .pillar:hover .glyph{
+    text-shadow:0 0 14px rgba(239,199,102,0.85);
+    transform:scale(1.15);
+  }
+
+  /* candle flame glow on card hover */
+  .candle-card:hover .flame{
+    filter:drop-shadow(0 0 12px rgba(239,199,102,1));
+  }
+
+  /* ---------- embers ---------- */
+  .embers{
+    position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0;
+  }
+  .ember{
+    position:absolute; bottom:-10px;
+    width:4px; height:4px; border-radius:50%;
+    background:var(--gold-bright);
+    box-shadow:0 0 6px 2px rgba(239,199,102,0.7);
+    opacity:0;
+    animation:emberRise linear infinite;
+  }
+  @keyframes emberRise{
+    0%{ opacity:0; transform:translateY(0) translateX(0); }
+    10%{ opacity:0.9; }
+    90%{ opacity:0.5; }
+    100%{ opacity:0; transform:translateY(-70vh) translateX(var(--drift, 20px)); }
+  }
+  .hero{ overflow:hidden; }
+  .hero > *:not(.embers){ position:relative; z-index:1; }
+
+  /* ---------- scroll reveal ---------- */
+  .reveal{
+    opacity:0; transform:translateY(24px);
+    transition:opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.is-visible{ opacity:1; transform:translateY(0); }
+  .reveal-stagger.is-visible > *{ animation:fadeUp 0.6s ease both; }
+  .reveal-stagger.is-visible > *:nth-child(1){ animation-delay:0.02s; }
+  .reveal-stagger.is-visible > *:nth-child(2){ animation-delay:0.1s; }
+  .reveal-stagger.is-visible > *:nth-child(3){ animation-delay:0.18s; }
+  .reveal-stagger.is-visible > *:nth-child(4){ animation-delay:0.26s; }
+
+  /* ---------- pillar cursor glow ---------- */
+  .pillar{ position:relative; overflow:hidden; }
+  .pillar::after{
+    content:'';
+    position:absolute; inset:0;
+    background:radial-gradient(160px circle at var(--mx,50%) var(--my,50%), rgba(212,169,74,0.16), transparent 70%);
+    opacity:0; transition:opacity 0.3s ease;
+    pointer-events:none;
+  }
+  .pillar:hover::after{ opacity:1; }
+
+  /* ---------- origin item pulse on reveal ---------- */
+  .origin-item::before{ transition:box-shadow 0.4s ease; }
+  .origin-item.is-visible::before{ box-shadow:0 0 10px 2px rgba(212,169,74,0.6); }
+
+  /* ---------- verse candle ---------- */
+  .verse-flame{
+    width:7px; height:18px; margin:0 auto 1.2rem;
+    background:linear-gradient(180deg, var(--gold-bright), var(--ember));
+    border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+    filter:drop-shadow(0 0 8px rgba(239,199,102,0.85));
+    animation:flicker 2.2s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .reveal, .reveal-stagger > *{ opacity:1 !important; transform:none !important; animation:none !important; }
+    .ember{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sky"></div>
+<div class="stars"></div>
+
+<nav>
+  <div class="brand"><span class="mark" aria-hidden="true"></span><span>Disciples</span></div>
+  <button class="navtoggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+  <div class="navlinks" id="navLinks">
+    <a href="#origins">Our Story</a>
+    <a href="#pillars">What We Believe</a>
+    <a href="#wall">The Wall</a>
+    <a href="#verse">Scripture</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="embers" id="embers"></div>
+  <div class="eyebrow">Faith, found together</div>
+  <h1>Come as you are.<br>Leave <em>known</em>.</h1>
+  <p>A home for prayer, testimony, and belonging.</p>
+  <div class="ctas">
+    <a href="#wall" class="btn btn-solid">Share on the Wall</a>
+    <a href="#origins" class="btn btn-ghost">Our Story</a>
+  </div>
+</header>
+
+<section id="origins">
+  <div class="section-head reveal">
+    <div class="eyebrow">Where It Began</div>
+    <h2>The Origins of Christianity</h2>
+    <p>From one life, a movement that spans the world.</p>
+  </div>
+  <div class="origins reveal-stagger">
+    <div class="origin-item">
+      <div class="era">c. 4 BC – 30 AD · Judea</div>
+      <p>Jesus of Nazareth is born, teaches, and is crucified and resurrected — the foundation of Christian faith.</p>
+    </div>
+    <div class="origin-item">
+      <div class="era">c. 30 – 100 AD · The Early Church</div>
+      <p>His disciples carry the gospel across the Roman world, led by figures like Paul of Tarsus.</p>
+    </div>
+    <div class="origin-item">
+      <div class="era">313 AD · Edict of Milan</div>
+      <p>Rome legalizes Christianity, ending centuries of persecution.</p>
+    </div>
+    <div class="origin-item">
+      <div class="era">Today · A Global Faith</div>
+      <p>Over two billion believers, one shared hope in Christ.</p>
+    </div>
+  </div>
+</section>
+
+<section id="pillars">
+  <div class="section-head reveal">
+    <div class="eyebrow">Foundations</div>
+    <h2>What We Believe</h2>
+  </div>
+  <div class="pillars reveal-stagger">
+    <div class="pillar">
+      <div class="glyph">&#10013;</div>
+      <h3>The Trinity</h3>
+      <p>One God — Father, Son, and Holy Spirit.</p>
+    </div>
+    <div class="pillar">
+      <div class="glyph">&#128214;</div>
+      <h3>Scripture</h3>
+      <p>The Bible as God's inspired word.</p>
+    </div>
+    <div class="pillar">
+      <div class="glyph">&#10084;</div>
+      <h3>Grace</h3>
+      <p>Salvation as a gift, not earned.</p>
+    </div>
+    <div class="pillar">
+      <div class="glyph">&#129309;</div>
+      <h3>Community</h3>
+      <p>Carrying each other's burdens.</p>
+    </div>
+  </div>
+</section>
+
+<section id="wall">
+  <div class="section-head wall-intro">
+    <div class="eyebrow">The Wall</div>
+    <h2>Light a Candle. Leave a Word.</h2>
+    <p>Every disciple who posts lights a candle here.</p>
+  </div>
+
+  <div class="composer">
+    <h3>Post as a Disciple</h3>
+    <div class="field-row">
+      <select id="postType" aria-label="Type of post">
+        <option value="Prayer Request">Prayer Request</option>
+        <option value="Testimony">Testimony</option>
+        <option value="Gratitude">Gratitude</option>
+        <option value="Question">Question</option>
+        <option value="Encouragement">Encouragement</option>
+      </select>
+      <input type="text" id="postName" placeholder="Your name (or 'Anonymous')" maxlength="30">
+    </div>
+    <textarea id="postMsg" placeholder="Write what's on your heart..." maxlength="240"></textarea>
+    <div class="composer-foot">
+      <span class="char-hint" id="charHint">240 characters remaining</span>
+      <button class="btn btn-solid" id="postBtn" type="button">Light This Candle</button>
+    </div>
+  </div>
+
+  <div class="candle-grid" id="candleGrid"></div>
+</section>
+
+<div class="verse-block" id="verse">
+  <div class="verse-flame" aria-hidden="true"></div>
+  <p>"Come to me, all who labor and are heavy laden, and I will give you rest."</p>
+  <span>— Matthew 11:28</span>
+</div>
+
+<section id="closing">
+  <div class="section-head reveal">
+    <div class="eyebrow">Your Next Step</div>
+    <h2>You Were Never Meant to Walk Alone</h2>
+    <p>Share your story. Become a Disciple of the Wall.</p>
+  </div>
+  <div style="text-align:center;">
+    <a href="#wall" class="btn btn-solid">Visit the Wall</a>
+  </div>
+</section>
+
+<footer>
+  <div class="brand"><span class="mark" aria-hidden="true"></span><span>Disciples</span></div>
+  <p>A space for faith, reflection, and connection.</p>
+</footer>
+
+<script>
+(function(){
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  navToggle.addEventListener('click', function(){
+    const isOpen = navLinks.classList.toggle('open');
+    navToggle.setAttribute('aria-expanded', isOpen);
+  });
+  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    navLinks.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', false);
+  }));
+
+  const STORAGE_KEY = 'livingvine_wall_posts';
+  const grid = document.getElementById('candleGrid');
+  const msgInput = document.getElementById('postMsg');
+  const nameInput = document.getElementById('postName');
+  const typeSelect = document.getElementById('postType');
+  const postBtn = document.getElementById('postBtn');
+  const charHint = document.getElementById('charHint');
+
+  const seedPosts = [
+    {type:'Testimony', name:'Ruth', msg:'Two years sober. Grace met me with nothing left.', lit:14},
+    {type:'Prayer Request', name:'Anonymous', msg:"For my father's surgery Thursday. Stand with us.", lit:22},
+    {type:'Gratitude', name:'Daniel', msg:'Found a church family after moving alone. Thankful.', lit:9},
+    {type:'Encouragement', name:'Miriam', msg:'The waiting season is not a wasted season.', lit:31}
+  ];
+
+  function loadPosts(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return seedPosts.slice();
+  }
+  function savePosts(posts){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(posts)); }catch(e){}
+  }
+
+  let posts = loadPosts();
+
+  function escapeHTML(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function render(){
+    if(posts.length === 0){
+      grid.innerHTML = '<div class="empty-state">No candles lit yet. Be the first to share.</div>';
+      return;
+    }
+    grid.innerHTML = posts.map((p, i) => `
+      <div class="candle-card" style="animation-delay:${Math.min(i,8)*0.04}s">
+        <div class="flame-wrap"><div class="flame" aria-hidden="true"></div></div>
+        <div class="tag">${escapeHTML(p.type)}</div>
+        <p class="msg">"${escapeHTML(p.msg)}"</p>
+        <div class="meta">
+          <span class="disciple-badge"><span class="flame-dot" aria-hidden="true"></span>Disciple ${escapeHTML(p.name || 'Anonymous')}</span>
+          <button class="light-btn" data-idx="${i}" type="button">&#10024; ${p.lit || 0}</button>
+        </div>
+      </div>
+    `).join('');
+
+    grid.querySelectorAll('.light-btn').forEach(btn => {
+      btn.addEventListener('click', function(){
+        const idx = parseInt(this.getAttribute('data-idx'), 10);
+        posts[idx].lit = (posts[idx].lit || 0) + 1;
+        savePosts(posts);
+        this.innerHTML = '&#10024; ' + posts[idx].lit;
+      });
+    });
+  }
+
+  msgInput.addEventListener('input', function(){
+    const remaining = 240 - msgInput.value.length;
+    charHint.textContent = remaining + ' characters remaining';
+  });
+
+  postBtn.addEventListener('click', function(){
+    const msg = msgInput.value.trim();
+    if(!msg){
+      msgInput.focus();
+      charHint.textContent = 'Write a message before lighting your candle.';
+      charHint.style.color = 'var(--ember)';
+      return;
+    }
+    charHint.style.color = '';
+    const newPost = {
+      type: typeSelect.value,
+      name: nameInput.value.trim() || 'Anonymous',
+      msg: msg,
+      lit: 0
+    };
+    posts.unshift(newPost);
+    savePosts(posts);
+    msgInput.value = '';
+    nameInput.value = '';
+    charHint.textContent = '240 characters remaining';
+    render();
+    grid.scrollIntoView({behavior: 'smooth', block: 'start'});
+  });
+
+  render();
+
+  // ---- respect reduced motion ----
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---- rising embers in hero ----
+  if(!prefersReduced){
+    const emberHost = document.getElementById('embers');
+    if(emberHost){
+      const EMBER_COUNT = 18;
+      for(let i=0; i<EMBER_COUNT; i++){
+        const e = document.createElement('div');
+        e.className = 'ember';
+        const left = Math.random()*100;
+        const duration = 6 + Math.random()*6;
+        const delay = Math.random()*10;
+        const drift = (Math.random()*60 - 30) + 'px';
+        e.style.left = left + '%';
+        e.style.setProperty('--drift', drift);
+        e.style.animationDuration = duration + 's';
+        e.style.animationDelay = delay + 's';
+        emberHost.appendChild(e);
+      }
+    }
+  }
+
+  // ---- scroll reveal ----
+  const revealTargets = document.querySelectorAll('.reveal, .reveal-stagger, .origin-item');
+  if('IntersectionObserver' in window && revealTargets.length){
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    revealTargets.forEach(el => io.observe(el));
+  } else {
+    revealTargets.forEach(el => el.classList.add('is-visible'));
+  }
+
+  // ---- pillar cursor glow ----
+  document.querySelectorAll('.pillar').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
+      card.style.setProperty('--my', (e.clientY - rect.top) + 'px');
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
